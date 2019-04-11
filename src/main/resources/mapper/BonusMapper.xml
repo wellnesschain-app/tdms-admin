@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.td.admin.dao.BonusDao">
+
+
+    <sql id="tableName">
+        t_bonus
+    </sql>
+    <sql id="field">
+        id,uid,val,type,time
+    </sql>
+
+<!--    <sql id="value">
+        #{account},#{password},#{nickname},#{createTime}
+    </sql>-->
+
+
+    <select id="findRecord" parameterType="string" resultType="map">
+        SELECT
+        <include refid="field"/>
+        FROM
+        <include refid="tableName"/>
+        WHERE uid = #{id}
+    </select>
+
+
+
+
+
+
+
+
+
+</mapper>    

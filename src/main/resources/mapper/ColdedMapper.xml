@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.td.admin.dao.ColdedDao">
+    <resultMap id="coldedMaper" type="Map">
+        <id column="id" property="id"/>
+        <result column="cid" property="cid"/>
+        <result column="uid" property="uid"/>
+        <result column="releases" property="releases"/>
+        <result column="val" property="val"/>
+        <result column="surplus" property="surplus"/>
+        <result column="time" property="time"/>
+    </resultMap>
+    <sql id="field">
+        id,cid,uid,releases,val,surplus,time
+    </sql>
+
+    <select id="findAll" resultMap="coldedMaper">
+        SELECT <include refid="field"/> FROM t_release ORDER BY time DESC
+    </select>
+</mapper>    

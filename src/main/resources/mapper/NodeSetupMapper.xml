@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.td.admin.dao.NodeSetupDao">
+
+
+    <select id="findAll"  resultType="map">
+        SELECT * FROM t_node_setup
+    </select>
+
+    <select id="findById" resultType="map">
+        SELECT * FROM t_node_setup WHERE id=#{id}
+    </select>
+
+    <update id="update" parameterType="map">
+        UPDATE t_node_setup
+        <set>
+            <if test="level != null and level != ''">
+                level=#{level},
+            </if>
+            <if test="promotion_conditions != null and promotion_conditions != ''">
+                promotion_conditions=#{promotion_conditions},
+            </if>
+            <if test="direct_promotion_award != null and direct_promotion_award != ''">
+                direct_promotion_award=#{direct_promotion_award},
+            </if>
+            <if test="development_award != null and development_award != ''">
+                development_award=#{development_award},
+            </if>
+            <if test="same_award != null ">
+                same_award=#{same_award},
+            </if>
+            <if test="tourism_fund != null and tourism_fund != ''">
+                tourism_fund=#{tourism_fund},
+            </if>
+            <if test="car_purchase_fund != null and car_purchase_fund != ''">
+                car_purchase_fund=#{car_purchase_fund},
+            </if>
+            <if test="purchase_fund != null and purchase_fund != ''">
+                purchase_fund=#{purchase_fund},
+            </if>
+            <if test="cash_fund != null and cash_fund != ''">
+                cash_fund=#{cash_fund},
+            </if>
+            <if test="gradation != null and gradation != ''">
+                gradation=#{gradation},
+            </if>
+            <if test="static_calculation != null and static_calculation != ''">
+                static_calculation=#{static_calculation},
+            </if>
+            <if test="static_return != null and static_return != ''">
+                static_return=#{static_return},
+            </if>
+            <if test="frequency !=null and frequency != ''">
+                frequency = #{frequency},
+            </if>
+            <if test="bought_static_return !=null and bought_static_return != ''">
+                bought_static_return = #{bought_static_return}
+            </if>
+        </set>
+        WHERE id=#{id}
+    </update>
+
+    <update id="updateFrequency" parameterType="map">
+        UPDATE t_node_setup set frequency = #{frequency}
+    </update>
+
+    <select id="findProcedures" resultType="map">
+        SELECT * FROM t_procedures
+    </select>
+
+    <!--<select id="findService" resultType="map">-->
+        <!--SELECT * FROM t_procedures-->
+    <!--</select>-->
+
+    <select id="findProceduresById" resultType="map">
+        SELECT * FROM t_procedures WHERE id=#{id}
+    </select>
+
+    <update id="updateProcedures" parameterType="map">
+        UPDATE t_procedures
+        <set>
+            <if test="tp_transfer != null and tp_transfer != ''">
+                tp_transfer=#{tp_transfer},
+            </if>
+            <if test="wnct_transfer != null and wnct_transfer != ''">
+                wnct_transfer=#{wnct_transfer},
+            </if>
+            <if test="wnct_withdraw != null and wnct_withdraw != ''">
+                wnct_withdraw=#{wnct_withdraw},
+            </if>
+            <if test="usdt_transfer != null and usdt_transfer != ''">
+                usdt_transfer=#{usdt_transfer},
+            </if>
+            <if test="usdt_withdraw != null and usdt_withdraw != ''">
+                usdt_withdraw=#{usdt_withdraw}
+            </if>
+
+        </set>
+        WHERE id=#{id}
+    </update>
+
+
+
+</mapper>    

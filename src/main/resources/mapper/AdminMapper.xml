@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.td.admin.dao.AdminDao">
+    <resultMap id="adminMaper" type="Admin">
+        <id property="id" column="id"/>
+        <result property="username" column="username"/>
+        <result property="password" column="password"/>
+        <result property="nickname" column="nickname"/>
+        <result property="createTime" column="time"/>
+        <result property="role" column="role"/>
+    </resultMap>
+
+    <sql id="tableName">
+        t_admin
+    </sql>
+    <sql id="field">
+        id,username,password,nickname,time,role
+    </sql>
+    <sql id="field2">
+        username,password,nickname,time,role
+    </sql>
+    <!--    <sql id="value">
+            #{account},#{password},#{nickname},#{createTime}
+        </sql>-->
+
+    <!--根据账号查询管理员-->
+    <select id="findByUsername" parameterType="string" resultMap="adminMaper">
+        SELECT
+        <include refid="field"/>
+        FROM
+        <include refid="tableName"/>
+        WHERE username = #{account}
+    </select>
+
+    <update id="update" parameterType="Map">
+        UPDATE
+        <include refid="tableName"/>
+        SET password = #{newPwd} WHERE id = #{id}
+    </update>
+
+    <!--
+        <select id="getRegistered" parameterType="map" resultType="map">
+            SELECT
+                COUNT(*) register,(SELECT COUNT(*) FROM t1011 b LEFT JOIN t1021 c ON b.F06 = c.F02 WHERE c.F02 IS NULL) as unregistered,(SELECT COUNT(*) FROM t1021) as registered
+            FROM
+                t1011 a
+            WHERE
+                date_format(a.F11, '%Y-%m-%d') = date_format(now(), '%Y-%m-%d')
+        </select>
+    -->
+
+    <select id="findtotalnumber" resultType="map">
+        SELECT COUNT(*) totalNumber,(SELECT COUNT(*) FROM t_user WHERE date_format(time, '%Y-%m-%d') = date_format(now(), '%Y-%m-%d')) register FROM t_user
+    </select>
+
+    <!-- <select id="findIntegralBalance" resultType="map">
+         SELECT F02,F03,(F02+F03) total FROM t1022
+     </select>-->
+
+    <!-- <select id="codenumber" resultType="int">
+         SELECT COUNT(*) FROM t1014 WHERE F05=1
+     </select>-->
+
+    <select id="findRegisteredNumber" resultType="map">
+        SELECT
+            /*SUM(DATE_FORMAT(NOW(),'%Y-%m-%d')=DATE_FORMAT(F11,'%Y-%m-%d')) day1,*/
+            SUM(date_sub(curdate(),interval 0 day)=DATE_FORMAT(time,'%Y-%m-%d')) day1,
+            SUM(date_sub(curdate(),interval 1 day)=DATE_FORMAT(time,'%Y-%m-%d')) day2,
+            SUM(date_sub(curdate(),interval 2 day)=DATE_FORMAT(time,'%Y-%m-%d')) day3,
+            SUM(date_sub(curdate(),interval 3 day)=DATE_FORMAT(time,'%Y-%m-%d')) day4,
+            SUM(date_sub(curdate(),interval 4 day)=DATE_FORMAT(time,'%Y-%m-%d')) day5,
+            SUM(date_sub(curdate(),interval 5 day)=DATE_FORMAT(time,'%Y-%m-%d')) day6,
+            SUM(date_sub(curdate(),interval 6 day)=DATE_FORMAT(time,'%Y-%m-%d')) day7,
+            SUM(date_sub(curdate(),interval 7 day)=DATE_FORMAT(time,'%Y-%m-%d')) day8,
+            SUM(date_sub(curdate(),interval 8 day)=DATE_FORMAT(time,'%Y-%m-%d')) day9,
+            SUM(date_sub(curdate(),interval 9 day)=DATE_FORMAT(time,'%Y-%m-%d')) day10,
+            SUM(date_sub(curdate(),interval 10 day)=DATE_FORMAT(time,'%Y-%m-%d')) day11,
+            SUM(date_sub(curdate(),interval 11 day)=DATE_FORMAT(time,'%Y-%m-%d')) day12,
+            SUM(date_sub(curdate(),interval 12 day)=DATE_FORMAT(time,'%Y-%m-%d')) day13,
+            SUM(date_sub(curdate(),interval 13 day)=DATE_FORMAT(time,'%Y-%m-%d')) day14,
+            SUM(date_sub(curdate(),interval 14 day)=DATE_FORMAT(time,'%Y-%m-%d')) day15,
+            SUM(date_sub(curdate(),interval 15 day)=DATE_FORMAT(time,'%Y-%m-%d')) day16,
+            SUM(date_sub(curdate(),interval 16 day)=DATE_FORMAT(time,'%Y-%m-%d')) day17,
+            SUM(date_sub(curdate(),interval 17 day)=DATE_FORMAT(time,'%Y-%m-%d')) day18,
+            SUM(date_sub(curdate(),interval 18 day)=DATE_FORMAT(time,'%Y-%m-%d')) day19,
+            SUM(date_sub(curdate(),interval 19 day)=DATE_FORMAT(time,'%Y-%m-%d')) day20,
+            SUM(date_sub(curdate(),interval 20 day)=DATE_FORMAT(time,'%Y-%m-%d')) day21,
+            SUM(date_sub(curdate(),interval 21 day)=DATE_FORMAT(time,'%Y-%m-%d')) day22,
+            SUM(date_sub(curdate(),interval 22 day)=DATE_FORMAT(time,'%Y-%m-%d')) day23,
+            SUM(date_sub(curdate(),interval 23 day)=DATE_FORMAT(time,'%Y-%m-%d')) day24,
+            SUM(date_sub(curdate(),interval 24 day)=DATE_FORMAT(time,'%Y-%m-%d')) day25,
+            SUM(date_sub(curdate(),interval 25 day)=DATE_FORMAT(time,'%Y-%m-%d')) day26,
+            SUM(date_sub(curdate(),interval 26 day)=DATE_FORMAT(time,'%Y-%m-%d')) day27,
+            SUM(date_sub(curdate(),interval 27 day)=DATE_FORMAT(time,'%Y-%m-%d')) day28,
+            SUM(date_sub(curdate(),interval 28 day)=DATE_FORMAT(time,'%Y-%m-%d')) day29,
+            SUM(date_sub(curdate(),interval 29 day)=DATE_FORMAT(time,'%Y-%m-%d')) day30
+
+        FROM
+            t_user
+    </select>
+
+    <select id="findPrepaidUsers" resultType="int">
+        /*SELECT COUNT(*) FROM t_svo_scan WHERE date_format(from_unixtime(time),'%Y-%m-%d')=date_format(NOW(),'%Y-%m-%d')*/
+        SELECT COUNT(*) FROM (SELECT * FROM t_transaction_records WHERE `status`=0 AND date_format(create_time, '%Y-%m-%d') = date_format(now(), '%Y-%m-%d') GROUP BY collection_address) a
+    </select>
+
+    <select id="findPlaceOrder" resultType="int">
+        /*SELECT COUNT(*) FROM t_wealthcold WHERE date_format(buyinTime,'%Y-%m-%d')=date_format(NOW(),'%Y-%m-%d')*/
+        SELECT COUNT(*) FROM t_transaction_records WHERE `status`=1
+    </select>
+
+    <select id="findPlaceOrderUser" resultType="int">
+         SELECT COUNT(*) FROM (SELECT COUNT(*) FROM t_turnin_calculation_record WHERE date_format(time,'%Y-%m-%d')=date_format(NOW(),'%Y-%m-%d') AND type=0 GROUP BY uid) a
+    </select>
+
+    <select id="getRelease" resultType="string">
+        SELECT ROUND(SUM(releases),8) FROM t_release WHERE date_format(time,'%Y-%m-%d')=date_format(time,'%Y-%m-%d')
+    </select>
+
+    <select id="getOrder" resultType="int">
+        SELECT COUNT(*) FROM t_turnin_calculation_record WHERE date_format(time,'%Y-%m-%d')=date_format(NOW(),'%Y-%m-%d') AND type=0
+    </select>
+
+    <select id="getDynamic" resultType="string">
+        SELECT SUM(val) FROM t_bonus WHERE date_format(time,'%Y-%m-%d')=date_format(NOW(),'%Y-%m-%d')
+    </select>
+
+    <select id="findAdmin" resultType="map">
+        SELECT * FROM t_admin
+    </select>
+
+    <insert id="add" parameterType="string">
+        INSERT INTO t_admin (username,password,nickname,time,role) VALUES (#{username},#{password},#{nickname},now(),#{role})
+    </insert>
+
+    <select id="findByRole" parameterType="string" resultType="map">
+        SELECT
+        <include refid="field"/>
+        FROM
+        <include refid="tableName"/>
+        WHERE username = #{username}
+    </select>
+
+    <update id="updateRole" parameterType="string">
+        UPDATE
+        <include refid="tableName"/>
+
+        SET
+        <!--<if test="password!=null">-->
+            <!--password = #{password},-->
+        <!--</if>-->
+        nickname = #{nickname},role = #{role} WHERE id = #{id}
+    </update>
+
+    <delete id="delete" parameterType="string">
+        DELETE FROM t_admin WHERE id=#{id}
+    </delete>
+
+
+</mapper>    

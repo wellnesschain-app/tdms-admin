@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.td.admin.dao.PostUserAuthenDao">
+    <sql id="field">
+        i.id,i.uid,u.name,u.account AS 'tel',u.uid AS 'num',i.img1,i.img2,i.img3,i.applyTime,i.auditTime,i.status,i.rejectMsg
+    </sql>
+
+
+    <select id="findById" parameterType="string" resultType="Map">
+        SELECT * FROM t_idcardaudit  WHERE id=#{id}
+    </select>
+
+    <select id="findByUid" parameterType="string" resultType="Map">
+        SELECT * FROM t_idcardaudit WHERE uid=#{uid}
+    </select>
+
+    <select id="findAllAudit" resultType="Map">
+        SELECT <include refid="field"/> FROM t_idcardaudit i LEFT JOIN t_user u ON i.uid=u.id WHERE i.status=0 ORDER BY i.applyTime DESC
+    </select>
+
+    <select id="findAllAudopt" resultType="Map">
+        SELECT <include refid="field"/> FROM t_idcardaudit i LEFT JOIN t_user u ON i.uid=u.id WHERE i.status=1 ORDER BY i.applyTime DESC
+    </select>
+
+    <select id="findAllunAudopt" resultType="Map">
+        SELECT <include refid="field"/> FROM t_idcardaudit i LEFT JOIN t_user u ON i.uid=u.id WHERE i.status=2 ORDER BY i.applyTime DESC
+    </select>
+    
+    <update id="update" parameterType="map">
+        UPDATE t_idcardaudit
+        <set>
+            <if test="status != null and status !=''">
+                status=#{status},
+            </if>
+            <if test="rejectMsg != null and rejectMsg !=''">
+                rejectMsg=#{rejectMsg},
+            </if>
+            auditTime=now()
+        </set>
+        WHERE id=#{id}
+    </update>
+</mapper>    

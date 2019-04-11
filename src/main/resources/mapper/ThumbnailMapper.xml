@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.td.admin.dao.ThumbnailDao">
+    <resultMap id="thumbnailMaper" type="Thumbnail">
+        <id column="F01" property="id"/>
+        <result column="F02" property="src"/>
+        <result column="F03" property="href"/>
+        <result column="F04" property="describe"/>
+        <result column="F05" property="status"/>
+    </resultMap>
+
+    <sql id="tableName">
+        t_banner
+    </sql>
+    <sql id="field">
+        F01,F02,F03,F04,F05
+    </sql>
+    <sql id="field2">
+        (F02,F03,F04)
+    </sql>
+    <sql id="value">
+        (#{src},#{href},#{describe})
+    </sql>
+
+    <!--根据ID查询轮播图-->
+    <select id="findById" parameterType="int" resultMap="thumbnailMaper">
+        SELECT <include refid="field"/> FROM <include refid="tableName"/> WHERE F01=#{id}
+    </select>
+
+    <!--查询全部轮播图-->
+    <select id="findAll" resultMap="thumbnailMaper">
+        SELECT <include refid="field"/> FROM <include refid="tableName"/>
+    </select>
+
+    <!--添加轮播图-->
+    <insert id="add" parameterType="Thumbnail" >
+        INSERT INTO
+        <include refid="tableName"/>
+        <include refid="field2"/>
+        VALUES
+        <include refid="value"/>
+    </insert>
+
+
+    <!--删除轮播图-->
+    <delete id="delete" parameterType="int">
+        DELETE FROM
+        <include refid="tableName"/>
+        WHERE F01=#{id}
+    </delete>
+
+
+    <!--修改轮播图-->
+    <update id="update" parameterType="Thumbnail">
+        UPDATE
+        <include refid="tableName"/>
+        <set>
+            <if test="src != null">
+                F02 = #{src},
+            </if>
+            <if test="href != null">
+                F03 = #{href},
+            </if>
+            <if test="describe != null">
+                F04 = #{describe},
+            </if>
+            <if test="status != null">
+                F05 = #{status}
+            </if>
+        </set>
+        WHERE F01=#{id}
+    </update>
+</mapper>    

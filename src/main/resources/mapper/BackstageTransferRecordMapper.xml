@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.td.admin.dao.BackstageTransferRecordDao">
+    
+    <sql id="field">
+        id,uid,val,codeVal,time,type,fee,count,transferType
+    </sql>
+    <sql id="field2">
+        (uid,val,codeVal,time)
+    </sql>
+    <sql id="value">
+        (#{uid},#{val},#{codeVal},now())
+    </sql>
+    <sql id="field3">
+        (uid,val,type,time,fee,count,transferType)
+    </sql>
+    <sql id="value2">
+        (#{uid},#{val},#{type},now(),#{fee},#{count},#{transferType})
+    </sql>
+
+   <insert id="add" parameterType="map" >
+       INSERT INTO t_backstage_transfer_records (addr,balance,usebalance,usdtbalance,time,type,userid,remarks,operator) VALUES (#{addr},#{balance},#{useBalance},#{ustdBalance},#{time},#{type},#{userid},#{remarks},#{username})
+   </insert>
+
+
+
+</mapper>    

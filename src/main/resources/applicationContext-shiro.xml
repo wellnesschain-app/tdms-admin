@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:lang="http://www.springframework.org/schema/lang"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang.xsd">
+
+    <!--shiro开启事务注解-->
+    <bean class="org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor">
+        <property name="securityManager" ref="securityManager"/>
+    </bean>
+
+    <!-- 配置使用自定义认证器，可以实现多Realm认证，并且可以指定特定Realm处理特定类型的验证 -->
+    <bean id="authenticator" class="com.td.admin.realm.CustomizedModularRealmAuthenticator">
+        <!-- 配置认证策略，只要有一个Realm认证成功即可，并且返回所有认证成功信息 -->
+        <property name="authenticationStrategy">
+            <bean class="org.apache.shiro.authc.pam.AtLeastOneSuccessfulStrategy"></bean>
+        </property>
+    </bean>
+
+    <!-- 配置shiro安全管理器 -->
+    <bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
+        <property name="authenticator" ref="authenticator"></property>
+        <!-- 可以配置多个Realm，其实会把realms属性赋值给ModularRealmAuthenticator的realms属性 -->
+        <property name="realm">
+            <ref bean="adminRealm"/>
+        </property>
+    </bean>
+
+    <!--自定义Realm-->
+<!--    <bean id="userRealm" class="com.xyy.realm.UserRealm"/>-->
+    <bean id="adminRealm" class="com.td.admin.realm.AdminRealm"/>
+
+
+    <!-- shiro工厂bean配置 -->
+    <bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
+        <!-- shiro的核心安全接口 -->
+        <property name="securityManager" ref="securityManager"/>
+        <!-- 要求登录时的连接 -->
+        <!--<property name="loginUrl" value="/user/toLogin"/>-->
+        <!--登录成功后跳转的页面-->
+        <!--<property name="successUrl" value="/user/index"/>-->
+        <!-- shiro连接约束配置 -->
+        <!--<property name="filterChainDefinitions">-->
+            <!--<value>-->
+                <!--&lt;!&ndash; 对静态资源设置允许匿名访问 &ndash;&gt;-->
+                <!--/static/**  =   anon-->
+                <!--/common/**  =   anon-->
+                <!--&lt;!&ndash; 可匿名访问路径，例如：验证码、登录连接、退出连接等 &ndash;&gt;-->
+                <!--/  =   anon-->
+                <!--/user/login   =   anon-->
+                <!--/user/register   =   anon-->
+                <!--&lt;!&ndash; 剩余其他路径，必须认证通过才可以访问 &ndash;&gt;-->
+                <!--/** =   authc-->
+            <!--</value>-->
+        <!--</property>-->
+    </bean>
+
+    <!-- 配置凭证算法匹配器 -->
+    <bean id="credentialsMatcher" class="org.apache.shiro.authc.credential.HashedCredentialsMatcher">
+        <!-- Md5算法 -->
+        <property name="hashAlgorithmName" value="Md5"></property>
+        <!-- 加密次数 -->
+        <property name="hashIterations" value="3"></property>
+    </bean>
+</beans>

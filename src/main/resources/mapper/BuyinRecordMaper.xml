@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.td.admin.dao.BuyinRecordDao">
+    <resultMap id="buyinRecordMaper" type="Map">
+        <id column="id" property="id"/>
+        <result column="uid" property="uid"/>
+        <result column="wid" property="wid"/>
+        <result column="val" property="val"/>
+        <result column="pVal" property="pVal"/>
+        <result column="time" property="time"/>
+    </resultMap>
+
+    <sql id="file">
+        b.id AS 'id',b.uid AS 'uid',b.wid AS 'wid',b.val AS 'val',b.pVal AS 'pVal',b.time AS 'time',u.account AS 'tel',u.name AS 'name'
+    </sql>
+    <select id="findAll" resultMap="buyinRecordMaper">
+        SELECT <include refid="file"/> FROM t_buyrecord b INNER JOIN t_user u ON b.uid=u.id ORDER BY b.time DESC
+    </select>
+
+    <select id="findAllByUid" parameterType="string" resultMap="buyinRecordMaper">
+        SELECT <include refid="file"/> FROM t_buyrecord b INNER JOIN t_user u ON b.uid=u.id WHERE b.uid=#{uid} ORDER BY b.time DESC
+    </select>
+</mapper>    

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.td.admin.dao.TurninCalculationRecordDao">
+    <resultMap id="calculationRecordMaper" type="Map">
+        <id column="id" property="id"/>
+        <result column="uid" property="uid"/>
+        <result column="val" property="val"/>
+        <result column="codeVal" property="codeVal"/>
+        <result column="type" property="type"/>
+        <result column="time" property="time"/>
+        <result column="fee" property="fee"/>
+        <result column="count" property="count"/>
+        <result column="transferType" property="transferType"/>
+    </resultMap>
+    <sql id="field">
+        id,uid,val,codeVal,time,type,fee,count,transferType
+    </sql>
+    <sql id="field2">
+        (uid,val,codeVal,time)
+    </sql>
+    <sql id="value">
+        (#{uid},#{val},#{codeVal},now())
+    </sql>
+    <sql id="field3">
+        (uid,val,type,time,fee,count,transferType)
+    </sql>
+    <sql id="value2">
+        (#{uid},#{val},#{type},now(),#{fee},#{count},#{transferType})
+    </sql>
+
+    <select id="findAll" resultType="map">
+        SELECT <include refid="field"/> FROM t_turnin_calculation_record where type = 0 ORDER BY time DESC
+    </select>
+
+
+
+</mapper>    

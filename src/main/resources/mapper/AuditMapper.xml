@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.td.admin.dao.AuditDao">
+
+    <resultMap id="AuditMaper" type="com.td.admin.entity.Audit">
+        <id property="id" column="F01"/>
+        <result property="addr" column="F02"/>
+        <result property="integral" column="F03"/>
+        <result property="time" column="F04"/>
+        <result property="state" column="F05"/>
+        <result property="reason" column="F06"/>
+    </resultMap>
+
+
+
+
+
+    <!--查询全部-->
+   <select id="getFindAll" resultType="map" parameterType="map">
+       SELECT
+            a.F01 id,
+            a.F02 addr,
+            a.F03 integral,
+            a.F04 time,
+            a.F05 state,
+            a.F06 reason,
+            b.F08 nickname,
+            b.F09 tel,
+            c.F03 idcard,
+            c.F04 name,
+            c.F05 bankcard
+        FROM
+            t1015 a
+        LEFT JOIN t1011 b ON a.F02 = b.F06 LEFT JOIN t1021 c ON a.F02=c.F02
+        WHERE a.F05=0
+        ORDER BY a.F01 ASC
+    </select>
+
+    <update id="updatestate" parameterType="Integer">
+        UPDATE t1015 set F05=1 WHERE F01=#{id}
+    </update>
+
+    <select id="getFindId" parameterType="map" resultType="map">
+        SELECT
+            a.F01 id,
+            a.F02 addr,
+            a.F03 integral,
+            a.F04 time,
+            a.F05 state,
+            a.F06 reason,
+            b.F08 nickname,
+            b.F09 tel,
+            c.F03 idcard,
+            c.F04 name,
+            c.F05 bankcard
+        FROM
+            t1015 a
+        LEFT JOIN t1011 b ON a.F02 = b.F06 LEFT JOIN t1021 c ON a.F02=c.F02
+        WHERE a.F01=#{id}
+    </select>
+
+    <update id="rejected" parameterType="com.td.admin.entity.Audit">
+        UPDATE t1015 set F05=2,F06=#{reason} WHERE F01=#{id}
+    </update>
+
+    <select id="getWallet" parameterType="string" resultType="string">
+        SELECT F01 FROM t1011 WHERE F06=#{addr}
+    </select>
+
+    <select id="getcode" resultType="string" parameterType="string">
+        SELECT F06 FROM t1019 WHERE F01=#{wallet}
+    </select>
+
+    <select id="getById" parameterType="Integer" resultMap="AuditMaper">
+        SELECT F01,F02,F03,F04,F05,F06 FROM t1015 WHERE F01=#{id}
+    </select>
+
+    <select id="getAgreedAll" resultType="map" parameterType="map">
+        SELECT
+            a.F01 id,
+            a.F02 addr,
+            a.F03 integral,
+            a.F04 time,
+            a.F05 state,
+            a.F06 reason,
+            b.F08 nickname,
+            b.F09 tel,
+            c.F03 idcard,
+            c.F04 name,
+            c.F05 bankcard
+        FROM
+            t1015 a
+        LEFT JOIN t1011 b ON a.F02 = b.F06 LEFT JOIN t1021 c ON a.F02=c.F02
+        WHERE a.F05=1
+        ORDER BY a.F01 DESC
+    </select>
+
+    <select id="getRejectedAll" parameterType="map" resultType="map">
+        SELECT
+            a.F01 id,
+            a.F02 addr,
+            a.F03 integral,
+            a.F04 time,
+            a.F05 state,
+            a.F06 reason,
+            b.F08 nickname,
+            b.F09 tel,
+            c.F03 idcard,
+            c.F04 name,
+            c.F05 bankcard
+        FROM
+            t1015 a
+        LEFT JOIN t1011 b ON a.F02 = b.F06 LEFT JOIN t1021 c ON a.F02=c.F02
+        WHERE a.F05=2
+        ORDER BY a.F01 DESC
+    </select>
+
+    <insert id="insert" parameterType="com.td.admin.entity.Record">
+        INSERT INTO
+          t1027
+        (F02,F03,F04)
+        VALUES
+        (#{addr},#{integral},#{time})
+    </insert>
+
+</mapper>    

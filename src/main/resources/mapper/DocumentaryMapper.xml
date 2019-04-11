@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.td.admin.dao.DocumentaryDao">
+
+
+    <select id="findAll"  resultType="map">
+        SELECT * FROM t_sale_center where status=0
+    </select>
+
+    <select id="findSold" resultType="map">
+        SELECT * FROM t_sale_center where status=1
+    </select>
+
+    <update id="update" parameterType="map">
+        UPDATE t_sale_center set status = 2 WHERE order_num=#{order_num}
+    </update>
+
+    <select id="findDocumentarySearchList" parameterType="string" resultType="map">
+        SELECT
+            id,user_id,create_time,`value`,order_num,`status`,sale_address
+        FROM
+            t_sale_center
+        WHERE
+            status = 0
+        <if test="id != null and '' != id ">
+            AND user_id = #{id}
+        </if>
+        <if test="start_time != null and '' != start_time ">
+            AND DATE_FORMAT(create_time, '%Y-%m-%d') &gt;= #{start_time}
+        </if>
+        <if test="end_time != null and '' != end_time ">
+            AND DATE_FORMAT(create_time, '%Y-%m-%d') &lt;= #{end_time}
+        </if>
+    </select>
+
+    <select id="findSoldSearch" parameterType="string" resultType="map">
+        SELECT
+            id,user_id,create_time,`value`,order_num,`status`,sale_address
+        FROM
+            t_sale_center
+        WHERE
+            status = 1
+        <if test="id != null and '' != id ">
+            AND user_id = #{id}
+        </if>
+        <if test="start_time != null and '' != start_time ">
+            AND DATE_FORMAT(create_time, '%Y-%m-%d') &gt;= #{start_time}
+        </if>
+        <if test="end_time != null and '' != end_time ">
+            AND DATE_FORMAT(create_time, '%Y-%m-%d') &lt;= #{end_time}
+        </if>
+    </select>
+
+    <select id="findCancelOrder" resultType="map">
+        SELECT
+            id,user_id,create_time,`value`,order_num,`status`,sale_address
+        FROM
+            t_sale_center
+        WHERE
+            status = 2
+    </select>
+
+    <select id="findCancelOrderSearch" parameterType="string" resultType="map">
+        SELECT
+            id,user_id,create_time,`value`,order_num,`status`,sale_address
+        FROM
+            t_sale_center
+        WHERE
+            status = 2
+        <if test="id != null and '' != id ">
+            AND user_id = #{id}
+        </if>
+        <if test="start_time != null and '' != start_time ">
+            AND DATE_FORMAT(create_time, '%Y-%m-%d') &gt;= #{start_time}
+        </if>
+        <if test="end_time != null and '' != end_time ">
+            AND DATE_FORMAT(create_time, '%Y-%m-%d') &lt;= #{end_time}
+        </if>
+    </select>
+
+</mapper>    

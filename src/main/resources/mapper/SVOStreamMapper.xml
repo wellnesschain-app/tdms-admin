@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.td.admin.dao.BlockTransferDao">
+    <resultMap id="pacStreamMaper" type="Map">
+        <id column="id" property="id"/>
+        <result column="blockNumber" property="blockNumber"/>
+        <result column="fromAddr" property="fromAddr"/>
+        <result column="toAddr" property="toAddr"/>
+        <result column="val" property="val"/>
+        <result column="time" property="time"/>
+        <result column="txHash" property="txHash"/>
+    </resultMap>
+
+    <sql id="field">
+        id,blockNumber,fromAddr,toAddr,val,time,txHash
+    </sql>
+
+    <select id="findAll" resultMap="pacStreamMaper">
+        SELECT <include refid="field"/> FROM t_pac_scan ORDER BY blockNumber DESC
+    </select>
+</mapper>    

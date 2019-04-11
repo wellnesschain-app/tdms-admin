@@ -1,0 +1,551 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.td.admin.dao.TransMapper">
+    <sql id="tableName">
+        t_transaction_records
+    </sql>
+    <sql id="field">
+        id,status,collection_address,send_address,num,create_time,user_id
+    </sql>
+    <sql id="field2">
+        status,collection_address,send_address,num,create_time,user_id
+    </sql>
+    <sql id="value">
+        (#{toAddr},#{fromAddr},#{type},#{content},now(),#{value},#{fee},#{actualTransfer})
+    </sql>
+
+
+
+    <!--添加交易记录-->
+    <insert id="add" parameterType="map">
+        INSERT INTO
+        <include refid="tableName"/>(<include refid="field2"/>)
+        VALUES
+        <include refid="value"/>
+    </insert>
+
+    <!--获取所有转出过的地址集合-->
+    <select id="findToAddrByAddr" parameterType="string" resultType="string">
+        SELECT DISTINCT F02 FROM <include refid="tableName"/> WHERE F03 = #{addr}
+    </select>
+
+
+    <!--获取全部积分转账记录-->
+    <select id="findAllCore" resultType="map">
+        SELECT <include refid="field"/> FROM <include refid="tableName"/> WHERE F04=2 ORDER BY F06 DESC
+    </select>
+
+    <!--获取全部FST转账记录-->
+    <select id="findAllFST" resultType="map">
+        SELECT <include refid="field"/> FROM <include refid="tableName"/> WHERE F04=1 ORDER BY F06 DESC
+    </select>
+
+    <!--获取积分转账记录-->
+    <select id="findAllByAddr" parameterType="string" resultType="map">
+        SELECT <include refid="field"/> FROM <include refid="tableName"/> WHERE F02 = #{addr} OR F03 = #{addr} ORDER BY F06 DESC
+    </select>
+
+    <select id="findAll" resultType="map">
+        SELECT * FROM t_wnct_scan
+    </select>
+
+    <select id="findSold" resultType="map">
+        SELECT <include refid="field"/> FROM t_transaction_records WHERE status=1
+    </select>
+
+    <select id="findSystemTransfer" resultType="map">
+        SELECT * FROM t_backstage_transfer_records ORDER BY time DESC
+    </select>
+
+    <select id="findStaticBonus" resultType="map">
+        SELECT
+            a.id,
+            a.addr,
+            a.account,
+            a.name,
+            a.level,
+            a.status,
+            SUM(b.num) count
+        FROM
+            t_user a
+        LEFT JOIN t_transaction_records b ON a.addr = b.collection_address
+        WHERE b.`status`=5
+        GROUP BY a.id
+    </select>
+
+    <select id="findStaticBonusSearch" parameterType="string" resultType="map">
+        SELECT
+            a.id,
+            a.addr,
+            a.account,
+            a.name,
+            a.level,
+            a.status,
+            SUM(b.num) count
+        FROM
+            t_user a
+        LEFT JOIN t_transaction_records b ON a.addr = b.collection_address
+        WHERE b.`status`=5 AND a.id=#{id}
+        GROUP BY a.id
+    </select>
+
+    <select id="findJFTransfer" resultType="map">
+        SELECT
+            a.*,
+            b.account,
+            b.id toid,
+            b.account toname,
+            c.id fromid,
+            c.account fromname
+        FROM
+            t_transaction_records a LEFT JOIN t_user b ON a.collection_address=b.addr LEFT JOIN t_user c ON a.send_address=c.addr
+        WHERE
+            /*a.status = 12 OR*/ a.status=18
+    </select>
+
+    <select id="findWNCTTransfer" resultType="map">
+        SELECT
+            a.*,
+            b.account,
+            b.id toid,
+            b.account toname,
+            c.id fromid,
+            c.account fromname
+        FROM
+            t_transaction_records a LEFT JOIN t_user b ON a.collection_address=b.addr LEFT JOIN t_user c ON a.send_address=c.addr
+        WHERE
+            a.status = 13
+    </select>
+
+    <select id="findDynamicBonus" resultType="map">
+        SELECT
+             e.id,
+             e.id userid,
+             e.addr,
+             a.count ztjl,
+             b.bb fzjl,
+             c.cc tjjl,
+             d.dd jcjl
+        FROM
+        (
+        SELECT
+                id,
+                addr,
+                name
+        FROM
+                t_user
+        ) e
+        LEFT JOIN
+        (
+        SELECT
+                a.collection_address,
+                SUM(a.num) count
+        FROM
+                t_transaction_records a LEFT JOIN t_user b ON a.collection_address=b.addr
+        WHERE
+                a.status = 8
+        GROUP BY a.collection_address
+        ) a ON e.addr=a.collection_address
+        LEFT JOIN
+        (
+        SELECT
+                a.collection_address aa,
+                SUM(a.num) bb
+        FROM
+                t_transaction_records a LEFT JOIN t_user b ON a.collection_address=b.addr
+        WHERE
+                a.status = 9
+        GROUP BY a.collection_address
+        ) b ON e.addr=b.aa
+        LEFT JOIN
+        (
+        SELECT
+                a.collection_address bb,
+                SUM(a.num) cc
+        FROM
+                t_transaction_records a LEFT JOIN t_user b ON a.collection_address=b.addr
+        WHERE
+                a.status = 10
+        GROUP BY a.collection_address
+        ) c ON e.addr=c.bb
+        LEFT JOIN
+        (
+        SELECT
+                a.collection_address cc,
+                SUM(a.num) dd
+        FROM
+                t_transaction_records a LEFT JOIN t_user b ON a.collection_address=b.addr
+        WHERE
+                a.status = 11
+        GROUP BY a.collection_address
+        ) d ON e.addr=d.cc
+    </select>
+
+    <select id="findDynamicBonusRecord" resultType="map">
+        SELECT
+            *
+        FROM
+            t_transaction_records
+        WHERE user_id=#{id} AND `status`=8
+
+        UNION ALL
+
+        SELECT
+            *
+        FROM
+            t_transaction_records
+        WHERE user_id=#{id} AND `status`=9
+
+        UNION ALL
+
+        SELECT
+            *
+        FROM
+            t_transaction_records
+        WHERE user_id=#{id} AND `status`=10
+
+        UNION ALL
+
+        SELECT
+            *
+        FROM
+            t_transaction_records
+        WHERE user_id=#{id} AND `status`=11
+    </select>
+
+    <select id="findDynamicBonusSearch" parameterType="string" resultType="map">
+        SELECT
+             e.id,
+             e.id userid,
+             e.addr,
+             e.account,
+             a.count ztjl,
+             b.bb fzjl,
+             c.cc tjjl,
+             d.dd jcjl
+        FROM
+        (
+        SELECT
+                id,
+                addr,
+                name,
+                account
+        FROM
+                t_user
+        ) e
+        LEFT JOIN
+        (
+        SELECT
+                a.collection_address,
+                SUM(a.num) count
+        FROM
+                t_transaction_records a LEFT JOIN t_user b ON a.collection_address=b.addr
+        WHERE
+                a.status = 8
+        GROUP BY a.collection_address
+        ) a ON e.addr=a.collection_address
+        LEFT JOIN
+        (
+        SELECT
+                a.collection_address aa,
+                SUM(a.num) bb
+        FROM
+                t_transaction_records a LEFT JOIN t_user b ON a.collection_address=b.addr
+        WHERE
+                a.status = 9
+        GROUP BY a.collection_address
+        ) b ON e.addr=b.aa
+        LEFT JOIN
+        (
+        SELECT
+                a.collection_address bb,
+                SUM(a.num) cc
+        FROM
+                t_transaction_records a LEFT JOIN t_user b ON a.collection_address=b.addr
+        WHERE
+                a.status = 10
+        GROUP BY a.collection_address
+        ) c ON e.addr=c.bb
+        LEFT JOIN
+        (
+        SELECT
+                a.collection_address cc,
+                SUM(a.num) dd
+        FROM
+                t_transaction_records a LEFT JOIN t_user b ON a.collection_address=b.addr
+        WHERE
+                a.status = 11
+        GROUP BY a.collection_address
+        ) d ON e.addr=d.cc
+        WHERE e.id=#{id} OR e.account=#{id}
+    </select>
+
+    <select id="findStaticBonusRecord" resultType="map">
+        SELECT * FROM t_transaction_records WHERE `status`=5 AND user_id=#{id}
+    </select>
+
+    <select id="findJFTransferSearch" parameterType="string" resultType="map">
+        SELECT
+            a.*,
+            b.account,
+            b.id toid,
+            b.account toname,
+            c.id fromid,
+            c.account fromname
+        FROM
+            t_transaction_records a LEFT JOIN t_user b ON a.collection_address=b.addr LEFT JOIN t_user c ON a.send_address=c.addr
+        WHERE
+            a.status=18
+        <if test="fromid != null and '' != fromid ">
+            AND c.id = #{fromid}
+        </if>
+        <if test="toid != null and '' != toid ">
+            AND b.id = #{toid}
+        </if>
+        <if test="start_time != null and '' != start_time ">
+            AND DATE_FORMAT(a.create_time, '%Y-%m-%d') &gt;= #{start_time}
+        </if>
+        <if test="end_time != null and '' != end_time ">
+            AND DATE_FORMAT(a.create_time, '%Y-%m-%d') &lt;= #{end_time}
+        </if>
+    </select>
+
+    <select id="findWNCTTransferSearch" parameterType="string" resultType="map">
+        SELECT
+            a.*,
+            b.account,
+            b.id toid,
+            b.account toname,
+            c.id fromid,
+            c.account fromname
+        FROM
+            t_transaction_records a LEFT JOIN t_user b ON a.collection_address=b.addr LEFT JOIN t_user c ON a.send_address=c.addr
+        WHERE
+            a.status = 13
+        <if test="fromid != null and '' != fromid ">
+            AND c.id = #{fromid}
+        </if>
+        <if test="toid != null and '' != toid ">
+            AND b.id = #{toid}
+        </if>
+        <if test="start_time != null and '' != start_time ">
+            AND DATE_FORMAT(a.create_time, '%Y-%m-%d') &gt;= #{start_time}
+        </if>
+        <if test="end_time != null and '' != end_time ">
+            AND DATE_FORMAT(a.create_time, '%Y-%m-%d') &lt;= #{end_time}
+        </if>
+    </select>
+
+    <select id="findUSDTTransfer" resultType="map">
+        SELECT
+                a.*,
+                b.account,
+                b.id toid,
+                b.account toname,
+                c.id fromid,
+                c.account fromname
+        FROM
+                t_transaction_records a
+                LEFT JOIN t_user b ON a.collection_address=b.addr
+                LEFT JOIN t_user c ON a.send_address=c.addr
+        WHERE
+                a.status = 19
+    </select>
+
+    <select id="findUSDTTransferSearch" parameterType="string" resultType="map">
+        SELECT
+                a.*,
+                b.account,
+                b.id toid,
+                b.account toname,
+                c.id fromid,
+                c.account fromname
+        FROM
+                t_transaction_records a
+                LEFT JOIN t_user b ON a.collection_address=b.addr
+                LEFT JOIN t_user c ON a.send_address=c.addr
+        WHERE
+                a.status = 19
+        <if test="fromid != null and '' != fromid ">
+            AND c.id = #{fromid}
+        </if>
+        <if test="toid != null and '' != toid ">
+            AND b.id = #{toid}
+        </if>
+        <if test="start_time != null and '' != start_time ">
+            AND DATE_FORMAT(a.create_time, '%Y-%m-%d') &gt;= #{start_time}
+        </if>
+        <if test="end_time != null and '' != end_time ">
+            AND DATE_FORMAT(a.create_time, '%Y-%m-%d') &lt;= #{end_time}
+        </if>
+    </select>
+
+    <select id="findSystemTransferSearch" parameterType="string" resultType="map">
+        SELECT
+            id,addr,userid,balance,usebalance,usdtbalance,time,type,remarks,operator
+        FROM
+            t_backstage_transfer_records
+        WHERE 1=1
+        <if test="id != null and '' != id ">
+            AND userid = #{id}
+        </if>
+        <if test="start_time != null and '' != start_time ">
+            AND DATE_FORMAT(time, '%Y-%m-%d') &gt;= #{start_time}
+        </if>
+        <if test="end_time != null and '' != end_time ">
+            AND DATE_FORMAT(time, '%Y-%m-%d') &lt;= #{end_time}
+        </if>
+    </select>
+
+    <select id="findAppSystemTransfer" parameterType="string" resultType="map">
+        SELECT * FROM t_backstage_transfer_records WHERE userid = #{userid}
+    </select>
+
+    <select id="findAllUsdt" resultType="map">
+        SELECT * FROM t_pac_scan
+    </select>
+
+    <select id="findSystemTransferCount" resultType="map">
+        SELECT
+            a.id,
+            a.account,
+            a.addr,
+            CASE WHEN b.fbalance IS NOT NULL THEN b.fbalance ELSE 0 END fbalance,
+            CASE WHEN b.fusebalance IS NOT NULL THEN b.fusebalance ELSE 0 END fusebalance,
+            CASE WHEN b.fusdtbalance IS NOT NULL THEN b.fusdtbalance ELSE 0 END fusdtbalance,
+            CASE WHEN c.tbalance IS NOT NULL THEN c.tbalance ELSE 0 END tbalance,
+            CASE WHEN c.tusebalance IS NOT NULL THEN c.tusebalance ELSE 0 END tusebalance,
+            CASE WHEN c.tusdtbalance IS NOT NULL THEN c.tusdtbalance ELSE 0 END tusdtbalance
+        FROM
+            t_user a
+        LEFT JOIN
+        (
+        SELECT
+            addr,
+            SUM(balance) fbalance,
+            SUM(usebalance) fusebalance,
+            SUM(usdtbalance) fusdtbalance
+        FROM
+            t_backstage_transfer_records
+        WHERE type=1
+        GROUP BY addr
+        ) b ON a.addr=b.addr
+        LEFT JOIN
+        (
+        SELECT
+            addr,
+            SUM(balance) tbalance,
+            SUM(usebalance) tusebalance,
+            SUM(usdtbalance) tusdtbalance
+        FROM
+            t_backstage_transfer_records
+        WHERE type=2
+        GROUP BY addr
+        ) c ON a.addr=c.addr
+    </select>
+
+    <select id="findSystemTransferSearchCount" parameterType="string" resultType="map">
+        SELECT
+            a.id,
+            a.account,
+            a.addr,
+            CASE WHEN b.fbalance IS NOT NULL THEN b.fbalance ELSE 0 END fbalance,
+            CASE WHEN b.fusebalance IS NOT NULL THEN b.fusebalance ELSE 0 END fusebalance,
+            CASE WHEN b.fusdtbalance IS NOT NULL THEN b.fusdtbalance ELSE 0 END fusdtbalance,
+            CASE WHEN c.tbalance IS NOT NULL THEN c.tbalance ELSE 0 END tbalance,
+            CASE WHEN c.tusebalance IS NOT NULL THEN c.tusebalance ELSE 0 END tusebalance,
+            CASE WHEN c.tusdtbalance IS NOT NULL THEN c.tusdtbalance ELSE 0 END tusdtbalance
+        FROM
+            t_user a
+        LEFT JOIN
+        (
+        SELECT
+            addr,
+            SUM(balance) fbalance,
+            SUM(usebalance) fusebalance,
+            SUM(usdtbalance) fusdtbalance
+        FROM
+            t_backstage_transfer_records
+        WHERE type=1
+        GROUP BY addr
+        ) b ON a.addr=b.addr
+        LEFT JOIN
+        (
+        SELECT
+            addr,
+            SUM(balance) tbalance,
+            SUM(usebalance) tusebalance,
+            SUM(usdtbalance) tusdtbalance
+        FROM
+            t_backstage_transfer_records
+        WHERE type=2
+        GROUP BY addr
+        ) c ON a.addr=c.addr
+        where 1=1
+        <if test="id != null and '' != id ">
+            AND a.id = #{id}
+        </if>
+    </select>
+
+    <select id="findWnctStreamSearch" parameterType="string" resultType="map">
+        SELECT
+            id,blockNumber,fromAddr,toAddr,val,time,txHash
+        FROM
+            t_wnct_scan
+        where 1=1
+        <if test="addr != null and '' != addr ">
+            AND toAddr = #{addr}
+        </if>
+        <if test="start_time != null and '' != start_time ">
+            AND DATE_FORMAT(from_unixtime(time), '%Y-%m-%d') &gt;= #{start_time}
+        </if>
+        <if test="end_time != null and '' != end_time ">
+            AND DATE_FORMAT(from_unixtime(time), '%Y-%m-%d') &lt;= #{end_time}
+        </if>
+    </select>
+
+    <select id="findUSDTStreamSearch" parameterType="string" resultType="map">
+        SELECT
+            id,
+            blockNumber,
+            fromAddr,
+            toAddr,
+            val,
+            time,
+            txHash
+        FROM
+            t_pac_scan
+        where 1=1
+        <if test="addr != null and '' != addr ">
+            AND toAddr = #{addr}
+        </if>
+        <if test="start_time != null and '' != start_time ">
+            AND DATE_FORMAT(time, '%Y-%m-%d') &gt;= #{start_time}
+        </if>
+        <if test="end_time != null and '' != end_time ">
+            AND DATE_FORMAT(time, '%Y-%m-%d') &lt;= #{end_time}
+        </if>
+    </select>
+
+    <select id="findSoldSearch" parameterType="string" resultType="map">
+        SELECT
+            id,`status`,collection_address,send_address,num,create_time,user_id
+        FROM
+            t_transaction_records
+        WHERE
+            status = 1
+        <if test="id != null and '' != id ">
+            AND user_id = #{id}
+        </if>
+        <if test="start_time != null and '' != start_time ">
+            AND DATE_FORMAT(create_time, '%Y-%m-%d') &gt;= #{start_time}
+        </if>
+        <if test="end_time != null and '' != end_time ">
+            AND DATE_FORMAT(create_time, '%Y-%m-%d') &lt;= #{end_time}
+        </if>
+    </select>
+
+</mapper>    

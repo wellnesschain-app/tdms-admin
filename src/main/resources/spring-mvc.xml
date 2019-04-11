@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:p="http://www.springframework.org/schema/p" 
+	xmlns:context="http://www.springframework.org/schema/context" 
+	xmlns:aop="http://www.springframework.org/schema/aop" 
+	xmlns:tx="http://www.springframework.org/schema/tx" 
+	xmlns:mvc="http://www.springframework.org/schema/mvc" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+http://www.springframework.org/schema/context
+http://www.springframework.org/schema/context/spring-context-4.2.xsd
+http://www.springframework.org/schema/mvc
+http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd">
+
+	<!-- 全注解方式 -->
+	<!-- 配置扫描Controller的包 -->
+	<context:component-scan base-package="com.td.admin.controller" />
+
+    <!-- 启用MVC注解 -->
+    <mvc:annotation-driven/>
+    
+    <!-- 静态资源不拦截 -->
+    <mvc:resources mapping="/static/**" location="/static/" />
+
+	<!-- 视图解析器 -->
+	<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+         <property name="viewClass" value="org.springframework.web.servlet.view.JstlView" />
+         <!-- jsp页面放到WEB-INF目录下 -->
+         <property name="prefix" value="/WEB-INF/" />
+         <!-- 页面的后缀为jsp -->
+         <property name="suffix" value=".jsp" />
+		<!--<property name="suffix" value=".html" />-->
+    </bean>
+	
+	<!-- 拦截器配置 -->
+	<mvc:interceptors>
+        <mvc:interceptor>
+            <mvc:mapping path="/admin/**"/><!-- 需要拦截的url -->
+			<mvc:exclude-mapping path="/admin/nodeSetup/getPercentage" />
+			<mvc:exclude-mapping path="/admin/nodeSetup/getProcedures" />
+			<mvc:exclude-mapping path="/admin/transfer/getAppSystemTransfer" />
+            <mvc:exclude-mapping path="/admin/toLogin"/>
+            <mvc:exclude-mapping path="/admin/Login"/>
+            <bean class="com.td.admin.interceptor.AdminLoginIntercetor"></bean><!-- 拦截器类 -->
+        </mvc:interceptor>
+	</mvc:interceptors>
+	
+	<!-- 配置不需要经过controller就可以直接访问WEB-INF目录下的页面
+	<mvc:view-controller path="/login" view-name="login"/> -->
+
+	<!--文件上传-->
+	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<!-- 设置上传文件最大尺寸，单位为B -->
+		<property name="maxUploadSize" value="1000000000" />
+	</bean>
+</beans>

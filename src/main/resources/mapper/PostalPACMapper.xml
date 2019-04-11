@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.td.admin.dao.PostalSvoDao">
+    <resultMap id="postalSVOMaper" type="Map">
+        <id property="id" column="id"/>
+        <id property="uid" column="uid"/>
+        <result property="tel" column="tel"/>
+        <result property="name" column="name"/>
+        <result property="fromAddr" column="fromAddr"/>
+        <result property="toAddr" column="toAddr"/>
+        <result property="val" column="val"/>
+        <result property="rejectMsg" column="rejectMsg"/>
+        <result property="applicationTime" column="applicationTime"/>
+        <result property="auditTime" column="auditTime"/>
+        <result property="isAuthin" column="isAuthin"/>
+        <result property="status" column="status"/>
+        <result property="fee" column="fee"/>
+        <result property="count" column="count"/>
+    </resultMap>
+
+    <sql id="field">
+        p.id AS 'id',u.id AS 'uid',u.account AS 'tel',u.name AS 'name',p.fromAddr AS 'fromAddr'
+        ,p.toAddr AS 'toAddr',p.val AS 'val',p.rejectMsg AS 'rejectMsg',p.applicationTime AS 'applicationTime',p.auditTime AS 'auditTime',p.isAuthin AS 'isAuthin',p.status AS 'status',p.fee AS 'fee',p.count AS 'count'
+    </sql>
+    <sql id="field2">
+        (id,fromAddr,toAddr,val,rejectMsg,applicationTime,auditTime,isAuthin,status,fee,count)
+    </sql>
+    <sql id="value">
+        (#{from},#{to},#{value},#{reason},now(),#{isAuthen},#{fee},#{actualValue})
+    </sql>
+
+    <insert id="add" parameterType="map">
+        INSERT INTO t_postpac_record <include refid="field2"/> VALUES <include refid="value"/>
+    </insert>
+
+    <select id="findAllAuditing"  resultMap="postalSVOMaper">
+        SELECT <include refid="field"/> FROM t_postpac_record p INNER JOIN t_user u ON u.addr=p.fromAddr WHERE p.status=0 ORDER BY applicationTime ASC
+    </select>
+    <select id="findAllAdopting" resultMap="postalSVOMaper">
+        SELECT <include refid="field"/> FROM t_postpac_record p INNER JOIN t_user u ON u.addr=p.fromAddr WHERE p.status=1 ORDER BY p.auditTime DESC
+    </select>
+    <select id="findAllUnAdopting" resultMap="postalSVOMaper">
+        SELECT <include refid="field"/> FROM t_postpac_record p INNER JOIN t_user u ON u.addr=p.fromAddr WHERE p.status=2 ORDER BY p.auditTime DESC
+    </select>
+
+    <select id="findById" parameterType="string" resultMap="postalSVOMaper">
+        SELECT * FROM t_postpac_record WHERE id=#{id}
+    </select>
+
+    <select id="findAuditingById" parameterType="string" resultMap="postalSVOMaper">
+        SELECT <include refid="field"/> FROM t_postpac_record WHERE F01=#{id} AND F09=0
+    </select>
+    <select id="findAllAdoptingById" parameterType="string" resultMap="postalSVOMaper">
+        SELECT <include refid="field"/> FROM t_postpac_record WHERE F01=#{id} AND F09=1
+    </select>
+    <select id="findAllUnAdoptingById" parameterType="string" resultMap="postalSVOMaper">
+        SELECT <include refid="field"/> FROM t_postpac_record WHERE F01=#{id} AND F09=2
+    </select>
+
+    <update id="upStatus" parameterType="Map">
+        UPDATE t_postpac_record
+        <set>
+            <if test="#{text != '' and text != null}">
+                rejectMsg=#{text},
+            </if>
+            <if test="#{status != '' and status != null}">
+                status=#{status},
+            </if>
+            auditTime=now()
+        </set>
+        WHERE id=#{id}
+    </update>
+
+    <select id="findPage" parameterType="string" resultType="map">
+        SELECT
+            a.*,
+            b.id userid
+        FROM
+            t_postpac_record a,t_user b
+        WHERE a.fromAddr=b.addr
+        <if test="status != null and status != '' ">
+            AND a.`status`=#{status}
+        </if>
+        <if test="id != null and id != '' ">
+            AND b.id=#{id}
+        </if>
+    </select>
+</mapper>    

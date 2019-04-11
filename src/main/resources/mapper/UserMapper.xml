@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.td.admin.dao.UserDao">
+    <sql id="field">
+      id,account,password,addr,code,uid,name,time
+    </sql>
+    <sql id="tableName">
+      t_user
+    </sql>
+    <select id="findAll" resultType="Map">
+        <!--SELECT <include refid="field"/> FROM t_user-->
+        SELECT
+            a.*,
+            b.pid leaderid
+        FROM
+            t_user a
+        LEFT JOIN t_user_info b ON a.id = b.uid
+    </select>
+
+    <select id="findTelByUid" resultType="String" parameterType="string">
+        SELECT account FROM t_user WHERE id=#{id}
+    </select>
+
+    <select id="findByUid" resultType="map" parameterType="string">
+        SELECT * FROM t_user WHERE id=#{id}
+    </select>
+
+    <update id="update" parameterType="map">
+        UPDATE t_user set level = #{level} WHERE addr=#{addr}
+    </update>
+
+    <select id="findByUserid" parameterType="string" resultType="map">
+        SELECT
+            a.id,
+            a.account,
+            a.addr,
+            a.code,
+            a.uid,
+            a.name,
+            a.time,
+            a.level,
+            a.status,
+        b.pid leaderid
+        FROM
+            t_user a LEFT JOIN t_user_info b ON a.id = b.uid
+        WHERE 1=1
+        <if test="id != null and '' != id ">
+            AND a.id = #{id}
+        </if>
+        <if test="account != null and '' != account ">
+            AND a.account = #{account}
+        </if>
+        <if test="lock != null and '' != lock ">
+            AND a.status = #{lock}
+        </if>
+        <if test="start_time != null and '' != start_time ">
+            AND DATE_FORMAT(a.time, '%Y-%m-%d') &gt;= #{start_time}
+        </if>
+        <if test="end_time != null and '' != end_time ">
+            AND DATE_FORMAT(a.time, '%Y-%m-%d') &lt;= #{end_time}
+        </if>
+    </select>
+
+    <update id="updateStatus" parameterType="string">
+        UPDATE t_user set status = 2 WHERE id=#{id}
+    </update>
+
+    <update id="userUnlock" parameterType="string">
+        UPDATE t_user set status = 1 WHERE id=#{id}
+    </update>
+
+    <select id="findByAddr" parameterType="string" resultType="map">
+        SELECT * FROM t_user WHERE addr=#{addr}
+    </select>
+
+    <update id="updatePwd" parameterType="string" >
+        UPDATE t_user set password = #{password} WHERE addr=#{addr}
+    </update>
+
+    <update id="updateAccount" parameterType="string">
+        UPDATE t_user set account = #{account} WHERE addr=#{addr}
+    </update>
+
+    <select id="findByAccount" parameterType="string" resultType="map">
+        SELECT * FROM t_user WHERE account=#{account}
+    </select>
+
+    <select id="findUserLevelSearch" parameterType="string" resultType="map">
+        SELECT
+            a.id,
+            a.account,
+            a.addr,
+            a.code,
+            a.uid,
+            a.name,
+            a.time,
+            a.level,
+            a.status
+        FROM
+            t_user a
+        WHERE a.id=#{id} OR a.account=#{id}
+    </select>
+
+    <update id="updateSqPwd" parameterType="string" >
+        UPDATE t_user set sq_password = #{password} WHERE addr=#{addr}
+    </update>
+
+</mapper>    

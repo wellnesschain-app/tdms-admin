@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.td.admin.dao.UserAuthenDao">
+    <resultMap id="userAuthenMaper" type="Map">
+        <id column="id" property="id"/>
+        <result column="uid" property="uid"/>
+        <result column="name" property="name"/>
+        <result column="num" property="num"/>
+        <result column="img1" property="img1"/>
+        <result column="img2" property="img2"/>
+        <result column="img3" property="img3"/>
+    </resultMap>
+
+    <sql id="field">
+      i.id AS 'id',u.id AS 'uid',u.name AS 'name',u.uid AS 'num',i.img1 AS 'img1',i.img2 AS 'img2',i.img3 AS 'img3'
+    </sql>
+
+
+    <select id="findByUid" parameterType="string" resultType="Map">
+        SELECT * FROM  t_idcardImg   WHERE uid=#{uid}
+    </select>
+
+    <select id="getAuthenInfo" parameterType="string" resultMap="userAuthenMaper">
+        SELECT <include refid="field"/> FROM t_user u LEFT JOIN t_idcardImg i ON u.id=i.uid WHERE u.id=#{id}
+    </select>
+
+    <insert id="add" parameterType="map">
+        INSERT INTO t_idcardImg (uid,img1,img2,img3) VALUES (#{uid},#{img1},#{img2},#{img3})
+    </insert>
+
+    <update id="updateUser" parameterType="map">
+        UPDATE t_user
+        <set>
+            <if test="name != null and name !=''">
+                name=#{name},
+            </if>
+            <if test="num != null and num !=''">
+                uid=#{num},
+            </if>
+        </set>
+        WHERE id=#{id}
+    </update>
+</mapper>    

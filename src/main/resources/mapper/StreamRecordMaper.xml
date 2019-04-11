@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.td.admin.dao.StreamRecordDao">
+    <resultMap id="StreamRecordMaper" type="Map">
+        <id column="id" property="id"/>
+        <result column="blockNumber" property="blockNumber"/>
+        <result column="fromAddr" property="fromAddr"/>
+        <result column="toAddr" property="toAddr"/>
+        <result column="val" property="val"/>
+        <result column="time" property="time"/>
+        <result column="txHash" property="txHash"/>
+    </resultMap>
+
+    <sql id="file">
+        b.id AS 'id',b.uid AS 'uid',b.wid AS 'wid',b.val AS 'val',b.pVal AS 'pVal',b.time AS 'time',u.account AS 'tel',u.name AS 'name'
+    </sql>
+    <sql id="file2">
+        id,blockNumber,fromAddr,toAddr,val,time,txHash
+    </sql>
+
+    <select id="findAll" resultMap="StreamRecordMaper">
+        SELECT <include refid="file2"/> FROM t_svo_scan
+    </select>
+
+    <!--<select id="findAllByUid" parameterType="string" resultMap="buyinRecordMaper">
+        SELECT <include refid="file"/> FROM t_buyrecord b INNER JOIN t_user u ON b.uid=u.id WHERE b.uid=#{uid} ORDER BY b.time DESC
+    </select>-->
+</mapper>    

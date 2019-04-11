@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.td.admin.dao.IntegralDao">
+
+
+    <select id="findAll"  resultType="map">
+        SELECT * FROM t_wnct_tp_percentage
+    </select>
+
+    <select id="editFind" parameterType="string" resultType="map">
+         SELECT * FROM t_wnct_tp_percentage WHERE id=#{id}
+    </select>
+
+    <update id="update" parameterType="map">
+        UPDATE t_wnct_tp_percentage
+        <set>
+            <if test="wnct_percentage_max != null and wnct_percentage_max != ''">
+                wnct_percentage_max=#{wnct_percentage_max},
+            </if>
+            <if test="wnct_percentage_min != null and wnct_percentage_min != ''">
+                wnct_percentage_min=#{wnct_percentage_min},
+            </if>
+            <if test="tp_percentage_max != null and tp_percentage_max != ''">
+                tp_percentage_max=#{tp_percentage_max},
+            </if>
+            <if test="tp_percentage_min != null and tp_percentage_min != ''">
+                tp_percentage_min=#{tp_percentage_min}
+            </if>
+        </set>
+        WHERE id=#{id}
+    </update>
+
+    <select id="findProcedures" resultType="map">
+
+    </select>
+
+</mapper>    
